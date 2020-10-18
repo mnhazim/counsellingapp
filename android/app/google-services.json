@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "503161059370",
+    "firebase_url": "https://counsellingapp-18db3.firebaseio.com",
+    "project_id": "counsellingapp-18db3",
+    "storage_bucket": "counsellingapp-18db3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:503161059370:android:ad8f6060015dbca67f6b53",
+        "android_client_info": {
+          "package_name": "com.counselling.counsellingapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "503161059370-m78a6h07u7ss97l4kacvhragqj9dmcm7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJOY_B7TKss-c7tEmNHumxw4Ytw4blNfs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "503161059370-m78a6h07u7ss97l4kacvhragqj9dmcm7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
