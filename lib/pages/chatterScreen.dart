@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:counsellingapp/models/prediction.dart';
+import 'package:counsellingapp/models/randomQuestion.dart';
 import 'package:edge_alert/edge_alert.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,9 +14,10 @@ String email = 'user@example.com';
 String messageText;
 FirebaseUser loggedInUser;
 Timer timer;
-int counting = 0;
+int counting = 150;
 int result = 0;
 int holdOnQuestion;
+int questionDone = 0;
 
 class ChatterScreen extends StatefulWidget {
   @override
@@ -67,7 +69,8 @@ class _ChatterScreenState extends State<ChatterScreen> {
   // }
 
   @override
-  Widget build(BuildContext context) {;
+  Widget build(BuildContext context) {
+    ;
     return Scaffold(
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.deepPurple),
@@ -181,26 +184,49 @@ class _ChatterScreenState extends State<ChatterScreen> {
                     onPressed: () {
                       chatMsgTextController.clear();
                       String msgFromDoc;
+                      String responseFromDoc;
                       String msgToLower = messageText.toLowerCase();
-                      print(holdOnQuestion);
-                      for(var a = 0; a <= questions.length-1; a++){
-                        if(holdOnQuestion != null){
-                          for(var i in questions[holdOnQuestion].waitingAnswer){
-                            if(msgToLower.contains(i.ifAnswer)){
+                      for (var a = 0; a <= questions.length - 1; a++) {
+                        if (holdOnQuestion != null) {
+                          for (var i
+                              in questions[holdOnQuestion].waitingAnswer) {
+                            if (msgToLower.contains(i.ifAnswer)) {
                               msgFromDoc = i.reply;
                               holdOnQuestion = null;
                               continue;
                             }
                           }
                         }
-                        
-                        if(msgToLower.contains(questions[a].prediction)){
+
+                        if (msgToLower.contains(questions[a].prediction)) {
                           msgFromDoc = questions[a].answer;
-                          if(questions[a].waitingAnswer.length > 0){
+                          counting -= questions[a].point;
+
+                          if (questions[a].waitingAnswer.length > 0) {
                             holdOnQuestion = a;
                           }
                           continue;
+                        } 
+                      }
+                      if(msgFromDoc == null){
+                        if(questionDone < 7){
+                          msgFromDoc = questionBank[questionDone].question;
+                          questionDone++;
+                        } else {
+                            if (counting >= 40 && counting <= 70) {
+                              msgFromDoc =
+                                  "No worries. You just have mild depression. Make sure you exercise daily and have balanced diet.";
+                            } else if (counting > 70) {
+                              msgFromDoc =
+                                  "No worries. You have moderate depression. Make sure interact with your friends or family members.";
+                            } else {
+                              msgFromDoc =
+                                  "I’m sorry. You have severe depression. For severe depression require medical treatment as soon as possible.";
+                            }
+                          questionDone = 2;
                         }
+                        
+                        print(questionDone);
                       }
                       // for(var i in predictionBank){
                       //   if(msgToLower.contains(i.prediction)){
@@ -218,8 +244,7 @@ class _ChatterScreenState extends State<ChatterScreen> {
                         'senderemail': email
                       });
                       Future.delayed(Duration(seconds: 1), () {
-
-                        if(msgFromDoc != null){
+                        if (msgFromDoc != null) {
                           _firestore.collection('messages').add({
                             'sender': 'PsyCounse',
                             'text': msgFromDoc,
@@ -267,14 +292,13 @@ class ChatStream extends StatelessWidget {
             final currentUser = loggedInUser.displayName;
 
             // print('MSG'+msgSender + '  CURR'+currentUser);
-            if(message.data['senderemail'] == loggedInUser.email){
+            if (message.data['senderemail'] == loggedInUser.email) {
               final msgBubble = MessageBubble(
-                msgText: msgText,
-                msgSender: msgSender,
-                user: currentUser == msgSender);
-                messageWidgets.add(msgBubble);
+                  msgText: msgText,
+                  msgSender: msgSender,
+                  user: currentUser == msgSender);
+              messageWidgets.add(msgBubble);
             }
-            
           }
           return Expanded(
             child: ListView(
@@ -284,19 +308,20 @@ class ChatStream extends StatelessWidget {
             ),
           );
         } else {
+          questionDone = 0;
           _firestore.collection('messages').add({
-              'sender': 'Doctor',
-              'text': 'Hai, welcome to counselling app',
-              'timestamp': DateTime.now().millisecondsSinceEpoch,
-              'senderemail': email
-            });
+            'sender': 'Doctor',
+            'text': 'Hi there, I’m your PsyCounse. How are you today?',
+            'timestamp': DateTime.now().millisecondsSinceEpoch,
+            'senderemail': email
+          });
 
-          _firestore.collection('messages').add({
-              'sender': 'Doctor',
-              'text': 'What can i help you ?',
-              'timestamp': DateTime.now().millisecondsSinceEpoch,
-              'senderemail': email
-            });
+          // _firestore.collection('messages').add({
+          //     'sender': 'Doctor',
+          //     'text': 'What can i help you ?',
+          //     'timestamp': DateTime.now().millisecondsSinceEpoch,
+          //     'senderemail': email
+          //   });
           return Center(
             child:
                 CircularProgressIndicator(backgroundColor: Colors.deepPurple),
